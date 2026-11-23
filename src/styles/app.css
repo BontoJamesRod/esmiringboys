@@ -1,0 +1,119 @@
+@import "tailwindcss";
+@import "./components.css" layer(components);
+
+@source "../app";
+
+/* Design tokens (defined as CSS variables in components.css, light + dark)
+   exposed to Tailwind so utilities like bg-surface / text-muted / border-line work. */
+@theme inline {
+  --font-sans: var(--font);
+  --font-mono: var(--mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunk: var(--sunk);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-navy: var(--navy);
+  --color-navy-soft: var(--navy-soft);
+  --color-navy-ink: var(--navy-ink);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-ok-ink: var(--ok-ink);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-ink: var(--warn-ink);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-bad-ink: var(--bad-ink);
+  --radius-card: var(--r);
+  --shadow-card: var(--shadow);
+  --shadow-pop: var(--shadow-lg);
+}
+
+@layer base {
+  html, body, #app { height: 100%; }
+  ul.bullets { list-style: disc; padding-left: 20px; }
+  .arch .box ul { list-style: disc; }
+}
+
+@layer components {
+  /* Boot splash (shown until storage has loaded) */
+  .boot { @apply min-h-full grid place-items-center text-muted text-sm font-medium; grid-auto-flow: column; gap: 10px; }
+  .boot-dot { @apply size-2.5 rounded-full bg-accent; animation: pulse 1s ease-in-out infinite alternate; }
+  @keyframes pulse { to { opacity: .25; transform: scale(.7); } }
+
+  /* Sidebar group labels */
+  .nav-group { @apply px-2.5 pt-3.5 pb-1 text-[11px] font-semibold uppercase tracking-wider text-faint; }
+
+  /* Tabs */
+  .tabs { @apply flex gap-1 border-b border-line overflow-x-auto; scrollbar-width: none; }
+  .tabs button { @apply relative shrink-0 cursor-pointer border-0 bg-transparent px-3 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-ink; }
+  .tabs button.on { @apply text-navy-ink; }
+  .tabs button.on::after { content: ""; @apply absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-accent; }
+  .tabs .n { @apply ml-1.5 rounded-full bg-sunk px-1.5 text-xs font-semibold text-muted; }
+  .tabs button.on .n { @apply bg-navy-soft text-navy-ink; }
+  .tab-panel { @apply flex flex-col gap-4; animation: fade .18s ease-out; }
+  .tab-panel[hidden] { display: none; }
+  .drawer-head .tabs { @apply border-b-0 -mx-1; }
+  .list-item.click:hover { @apply bg-sunk; }
+
+  /* Top-bar search trigger */
+  .kbar-btn { @apply hidden lg:flex items-center gap-2 h-9 w-44 whitespace-nowrap rounded-[10px] border border-line bg-bg px-3 text-sm text-faint cursor-pointer transition-colors hover:border-line-strong hover:text-muted; }
+  .kbd { @apply ml-auto whitespace-nowrap rounded-md border border-line bg-surface px-1.5 text-[11px] font-semibold text-muted; font-family: var(--font); }
+
+  /* Notification bell */
+  .bell-dot { @apply absolute top-1.5 right-1.5 min-w-4 h-4 rounded-full bg-bad px-1 text-[10px] font-bold leading-4 text-white text-center; }
+  .pop { @apply absolute right-0 top-[calc(100%+6px)] z-30 w-[min(380px,calc(100vw-24px))] rounded-xl border border-line bg-surface p-2 shadow-pop; animation: pop .15s ease-out; }
+  .pop-item { @apply flex items-start gap-2.5 rounded-lg px-2.5 py-2 text-sm no-underline text-ink hover:bg-sunk; }
+  .pop-item .ic { @apply mt-0.5; }
+
+  /* Command palette */
+  .cmdk { @apply fixed inset-0 z-[60] grid place-items-start justify-center px-4 pt-[12vh]; }
+  .cmdk-box { @apply w-[min(620px,100%)] overflow-hidden rounded-2xl border border-line bg-surface shadow-pop; animation: pop .16s ease-out; }
+  .cmdk-in { @apply flex items-center gap-2.5 border-b border-line px-4; }
+  .cmdk-in input { @apply min-h-14 border-0 bg-transparent px-0 text-base shadow-none focus:shadow-none; }
+  .cmdk-list { @apply max-h-[min(420px,60vh)] overflow-auto p-2; }
+  .cmdk-sec { @apply px-2.5 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-faint; }
+  .cmdk-item { @apply flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2.5 py-2 text-left text-sm text-ink cursor-pointer; }
+  .cmdk-item.on, .cmdk-item:hover { @apply bg-navy-soft; }
+  .cmdk-item .sub { @apply inline ml-1; }
+  .cmdk-foot { @apply flex gap-4 border-t border-line px-4 py-2 text-xs text-faint; }
+
+  /* Attention summary on the dashboard */
+  .attn { @apply flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-sm; }
+  .attn .pill { @apply rounded-full px-2 py-0.5 text-xs font-semibold; }
+
+  /* Compact KPI on drawers */
+  .mini-stats { @apply grid grid-cols-3 gap-3; }
+  .mini-stats > div { @apply rounded-xl border border-line bg-surface px-3.5 py-3; }
+  .mini-stats b { @apply block text-2xl font-semibold tabular-nums leading-tight; }
+  .mini-stats span { @apply text-xs font-semibold text-muted; }
+
+  /* Guided tour */
+  #tour { @apply fixed inset-0 z-[80]; }
+  .tour-veil { @apply absolute inset-0; background: rgb(10 18 30 / .55); animation: fade .2s ease-out; }
+  .tour-spot { @apply absolute rounded-xl pointer-events-none; box-shadow: 0 0 0 3px var(--accent), 0 0 0 9999px rgb(10 18 30 / .55); transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease; }
+  .tour-card { @apply absolute w-[min(340px,calc(100vw-24px))] rounded-2xl border border-line bg-surface p-5 shadow-pop; animation: pop .18s ease-out; }
+  .tour-card h2 { @apply m-0 mt-1 text-lg font-bold leading-snug text-ink; letter-spacing: -.01em; }
+  .tour-card p { @apply mt-1.5 mb-0 text-[15px] leading-relaxed text-muted; }
+  .tour-card p b { @apply text-ink font-semibold; }
+  .tour-meta { @apply flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-faint; }
+  .tour-x { @apply -mr-2 grid size-8 place-items-center rounded-lg border-0 bg-transparent text-muted cursor-pointer hover:bg-sunk hover:text-ink; }
+  .tour-dots { @apply mt-4 flex gap-1.5; }
+  .tour-dots i { @apply h-1.5 w-1.5 rounded-full bg-line-strong transition-all; }
+  .tour-dots i.on { @apply w-5 bg-accent; }
+  .tour-foot { @apply mt-4 flex items-center gap-2; }
+  .touring .main, .touring .ph-body { scroll-behavior: auto; }
+  .linkbtn { @apply mx-auto flex items-center gap-2 border-0 bg-transparent px-3 py-2 text-[15px] font-semibold text-navy-ink cursor-pointer rounded-lg hover:bg-sunk; }
+
+  /* Theme switch in the account menu */
+  .theme-row { @apply flex gap-1 rounded-lg bg-sunk p-1 m-1; }
+  .theme-row button { @apply flex-1 justify-center gap-1.5 rounded-md py-1.5 text-xs font-semibold text-muted; }
+  .theme-row button.on { @apply bg-surface text-ink shadow-sm; }
+}
