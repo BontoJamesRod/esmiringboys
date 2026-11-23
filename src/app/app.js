@@ -47,6 +47,7 @@ const A={
  tourGo(d){const T=S.tour;if(!T)return;const i=T.i+d;if(i>=T.steps.length){A.tourEnd();return}T.i=Math.max(0,i);drawTour()},
  tourEnd(){if(S.tour){markTour(S.tour.name);S.tour=null;drawTour()}},
  menu(which){S.menu=which&&S.menu!==which?which:false;render()},
+ size(k){S.size=k;try{k==='m'?localStorage.removeItem('kid-size'):localStorage.setItem('kid-size',k)}catch(e){}applySize();render()},
  theme(v){S.theme=v;try{v==='system'?localStorage.removeItem('kid-theme'):localStorage.setItem('kid-theme',v)}catch(e){}applyTheme();render()},
  /* tabs: local tabs only toggle visibility (forms keep every field); others re-render */
  tab(group,key,local){S.tabs[group]=key;
@@ -229,15 +230,16 @@ document.addEventListener('keydown',e=>{if(!S)return;
  if(e.key==='/'&&!typing(e.target)&&S.user&&!S.modal&&!S.cmdk){const q=$('#hh-q');if(q){e.preventDefault();q.focus()}else if(S.view!=='scanner'){e.preventDefault();A.cmdk(true)}return}
  if(e.key==='Escape'){if(S.cmdk)A.cmdk(false);else if(S.modal)A.closeModal();else if(S.drawer)A.close();else if(S.menu){S.menu=false;render()}else if(S.nav)A.nav(false)}});
 document.addEventListener('click',e=>{if(S&&S.menu&&!e.target.closest('.rel')){S.menu=false;render()}});
+let sizeT='m';try{sizeT=localStorage.getItem('kid-size')||'m'}catch(e){}
 let themeT='system';try{themeT=localStorage.getItem('kid-theme')||'system'}catch(e){}
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(S&&S.theme==='system')applyTheme()});
 
 /* Storage is async (IndexedDB), so the app starts once the registry has loaded. */
 (async function boot(){
  try{DB=await load()}catch(e){console.error('Could not load saved data, starting from sample data.',e);DB=seed()}
- S={user:null,view:'dashboard',prevView:null,brgy:'all',hf:{q:'',status:'all',need:'all',purok:'all',page:0},sel:new Set(),drawer:null,modal:null,menu:false,nav:false,cmdk:null,tour:null,tabs:{},theme:themeT,movesN:25,centerQ:'',range:'24h',imp:null,wk:null,rep:'evacuees',au:{user:'all',action:'all',range:'all',page:0},cardScope:'queue',sc:{screen:'home',q:'',manual:false},online:DB.me.online!==false};
+ S={user:null,view:'dashboard',prevView:null,brgy:'all',hf:{q:'',status:'all',need:'all',purok:'all',page:0},sel:new Set(),drawer:null,modal:null,menu:false,nav:false,cmdk:null,tour:null,tabs:{},theme:themeT,size:sizeT,movesN:25,centerQ:'',range:'24h',imp:null,wk:null,rep:'evacuees',au:{user:'all',action:'all',range:'all',page:0},cardScope:'queue',sc:{screen:'home',q:'',manual:false},online:DB.me.online!==false};
  try{const id=sessionStorage.getItem('kid-user');const u=id&&userById(id);if(u&&u.status==='Active'){S.user=u;S.brgy=u.brgy==='all'?'all':u.brgy}}catch(e){}
- applyTheme();
+ applyTheme();applySize();
  window.addEventListener('hashchange',route);
  save();route();
 })();

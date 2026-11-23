@@ -11,6 +11,7 @@
 <script>
   // Apply the saved theme before first paint to avoid a flash.
   try { var th = localStorage.getItem('kid-theme'); if (th === 'light' || th === 'dark') document.documentElement.dataset.theme = th; } catch (e) {}
+  try { var z = { s: .9, l: 1.1, xl: 1.2 }[localStorage.getItem('kid-size')]; if (z) document.documentElement.style.setProperty('--ui-zoom', z); } catch (e) {}
 </script>
 </head>
 <body>

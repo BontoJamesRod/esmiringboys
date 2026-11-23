@@ -409,3 +409,40 @@ details summary{cursor:pointer;font-weight:600}
 .userbtn .who{white-space:nowrap}
 @media (max-width:1240px){.userbtn .who{display:none}}
 @media (max-width:860px){.toasts{bottom:84px}}
+
+/* ---------- Phone sizing: social-app scale (15px text, 44px touch targets) ---------- */
+.ph-body{padding:14px;gap:12px;font-size:15px}
+.ph-body .h1{font-size:22px}
+.ph-body .lede{font-size:14px}
+.ph-top{padding:10px 14px;gap:8px}
+.ph-top .ctx b{font-size:14.5px}
+.ph-top .ctx span{font-size:12px}
+.ph-top .icon-btn{width:36px;height:36px;min-height:36px}
+.conn{padding:6px 10px;font-size:13px}
+.ph-nav button{min-height:50px;padding:6px 0 7px;font-size:10.5px;gap:1px}
+.ph-nav button svg{width:22px;height:22px}
+.bigbtn{min-height:60px;padding:10px 14px;gap:12px;font-size:16px;border-radius:14px}
+.bigbtn .bi{width:40px;height:40px;border-radius:11px}
+.bigbtn .bi svg{width:22px;height:22px}
+.bigbtn small{font-size:12.5px}
+.bigbtn.primary{min-height:76px;font-size:18px}
+.ph-card{padding:14px;border-radius:14px}
+.ph-body .btn{min-height:44px;font-size:15px;border-radius:11px}
+.ph-body .btn-lg{min-height:48px;font-size:16px}
+.ph-body input,.ph-body select{min-height:44px;font-size:16px} /* 16px stops iOS zooming into fields */
+.res-name{font-size:21px}
+.relief{padding:14px;gap:10px;border-radius:14px}
+.relief .state{font-size:17px}
+.prio{font-size:14px;padding:10px 12px}
+.needcount .tag{font-size:13px}
+.sample{padding:10px 12px;font-size:14px}
+@media (max-width:520px){
+  .h1{font-size:22px}
+  .lede{font-size:14px}
+  .main{padding:14px 14px 36px}
+  .stat-num{font-size:24px}
+}
+
+/* ---------- Text size setting: scales the whole app evenly (like a phone's display size) ---------- */
+#app > *, .toasts{zoom:var(--ui-zoom,1)}
+.ph-top .ctx span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

@@ -77,7 +77,8 @@ vite.config.js        joins src/app/*.js into one module (see the comment there)
 - **Ctrl K** (or **/**) opens search: households by name or ID, pages and common actions.
 - The **bell** lists capacity, stock and sync warnings.
 - Household, center and round details open in a side panel with tabs.
-- The **account menu** has the theme (Auto / Light / Dark) and language.
+- The **account menu** has the theme (Auto / Light / Dark), **text size** (Small / Default / Large / Larger) and language.
+- **Phone sizing** follows social-app conventions: 15px text, 44px touch targets, a compact bottom tab bar. Text size is also on the scanner home and setup screens; it scales the whole interface evenly (CSS `zoom` from `--ui-zoom`) and is kept in `localStorage` (`kid-size`).
 
 ## Ideas for next steps
 

@@ -20,7 +20,7 @@ const TOURS={
   [['a[href="#walkin"]','.side a[href="#households"]'],'Register a family','Families without a record are never turned away. Open <b>Households</b>, then <b>Register walk-in</b>.',['encoder']],
   [['.side a[href="#verify"]'],'Check walk-ins','Walk-ins waiting for you are counted here. Open one, check the details, then approve.',['officer','admin']],
   [['[data-tour=scanner]'],'Scanner','Opens the phone scanner that volunteers use at the evacuation center.'],
-  [['[data-tour=account]'],'Language and display','Open your account menu to switch to <b>Filipino</b> or <b>Bikol</b>, use dark mode, or log out.'],
+  [['[data-tour=account]'],'Language and display','Open your account menu to change the <b>text size</b>, switch to <b>Filipino</b> or <b>Bikol</b>, use dark mode, or log out.'],
   [['[data-tour=help]'],'Help is always here','Press <b>?</b> to replay this tour. The <b>How it works</b> page explains the whole system in plain words.'],
  ],
  setup:()=>[
@@ -34,6 +34,7 @@ const TOURS={
   [['[data-tour=scan]'],'Scan a card','Point the camera at the family’s QR card. You will see their name, members and whether they already received relief.'],
   [['[data-tour=find]'],'No card with them?','Search by name, household ID or phone number instead.'],
   [['[data-tour=walkin]'],'Not in the list?','Register them here. No one is turned away. An officer checks the details later.'],
+  [['.ph-body [data-tour=size]'],'Text too small or too big?','Change the text size here, the same way you do in your phone’s settings.'],
   [['[data-tour=sync]'],'Upload now','Records upload by themselves, but you can press this when you get signal.'],
  ],
 };

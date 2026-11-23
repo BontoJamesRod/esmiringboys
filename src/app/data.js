@@ -93,3 +93,8 @@ function barChart(vals,labels,every,unit){const W=640,Hh=150,L=30,B=22,max0=Math
  const bars=vals.map((v,i)=>{const h=(v/max)*(Hh-10);const x=L+i*bw+bw*.18;return `<rect class="${i===vals.length-1?'bl':'bv'}" x="${x.toFixed(1)}" y="${(Hh-h).toFixed(1)}" width="${(bw*.64).toFixed(1)}" height="${Math.max(0,h).toFixed(1)}" rx="2"><title>${labels[i]}: ${v} ${unit}</title></rect>${i%every===0||i===vals.length-1?`<text x="${(x+bw*.32).toFixed(1)}" y="${Hh+16}" text-anchor="middle">${labels[i]}</text>`:''}`}).join('');
  return `<svg class="chart" viewBox="0 0 ${W} ${Hh+B}" role="img" aria-label="Bar chart">${g}${bars}</svg>`}
 function csvOf(cols,rows){const q=v=>{v=String(v??'');return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v};return [cols.map(q).join(','),...rows.map(r=>r.map(q).join(','))].join('\n')}
+
+/* Text size: one setting scales the whole interface. */
+const TEXT_SIZES=[['s','Small',.9,12],['m','Default',1,14],['l','Large',1.1,16],['xl','Larger',1.2,18]];
+function applySize(){const z=(TEXT_SIZES.find(x=>x[0]===S.size)||TEXT_SIZES[1])[2];document.documentElement.style.setProperty('--ui-zoom',z);document.documentElement.dataset.size=S.size}
+function sizeRow(){return `<div class="theme-row size-row" role="group" aria-label="Text size" data-tour="size">${TEXT_SIZES.map(([k,l,,px])=>`<button class="${S.size===k?'on':''}" aria-pressed="${S.size===k}" aria-label="Text size: ${l}" title="${l}" onclick="A.size('${k}')"><span class="a" style="font-size:${px}px">A</span></button>`).join('')}</div>`}
