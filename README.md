@@ -26,7 +26,9 @@ Use one of the demo account buttons on the login screen.
 | `npm test` | Playwright tests (uses the installed Microsoft Edge; `PW_CHANNEL=chrome npm test` for Chrome) |
 | `npm run icons` | Regenerates the PNG app icons from `assets/kaligtasan-id-logo.svg` |
 
-To host it, upload `dist/` to any static host (Netlify, Vercel, GitHub Pages, an LGU server). It uses relative paths, so a sub-folder works.
+**Live demo:** https://bontojamesrod.github.io/esmiringboys/ (GitHub Pages; `.github/workflows/deploy.yml` rebuilds it on every push to `main`).
+
+To host it elsewhere, upload `dist/` to any static host (Netlify, Vercel, GitHub Pages, an LGU server). It uses relative paths, so a sub-folder works.
 
 ## Stack
 
