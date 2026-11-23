@@ -98,3 +98,29 @@ function csvOf(cols,rows){const q=v=>{v=String(v??'');return /[",\n]/.test(v)?`"
 const TEXT_SIZES=[['s','Small',.9,12],['m','Default',1,14],['l','Large',1.1,16],['xl','Larger',1.2,18]];
 function applySize(){const z=(TEXT_SIZES.find(x=>x[0]===S.size)||TEXT_SIZES[1])[2];document.documentElement.style.setProperty('--ui-zoom',z);document.documentElement.dataset.size=S.size}
 function sizeRow(){return `<div class="theme-row size-row" role="group" aria-label="Text size" data-tour="size">${TEXT_SIZES.map(([k,l,,px])=>`<button class="${S.size===k?'on':''}" aria-pressed="${S.size===k}" aria-label="Text size: ${l}" title="${l}" onclick="A.size('${k}')"><span class="a" style="font-size:${px}px">A</span></button>`).join('')}</div>`}
+
+/* Shrink-to-fit instead of cutting text off with "...".
+   Steps the font size down until the whole text fits; below MIN it wraps to a new line instead. */
+const FIT_SEL='select,.ph-top .ctx b,.ph-top .ctx span,.fit';
+let fitCtx=null;
+function textWidth(text,font){fitCtx=fitCtx||document.createElement('canvas').getContext('2d');fitCtx.font=font;return fitCtx.measureText(text).width}
+function fitTop(){const top=document.querySelector('.top');if(!top)return;top.classList.remove('t1','t2','t3','t4','t5');
+ for(let i=1;i<=5&&top.scrollWidth>top.clientWidth+1;i++)top.classList.add('t'+i)}
+function fitText(root=document){
+ fitTop();
+ for(const el of root.querySelectorAll(FIT_SEL)){
+  el.style.fontSize='';el.classList.remove('fit-wrap');
+  const cs=getComputedStyle(el);let size=parseFloat(cs.fontSize);const MIN=11;
+  if(el.tagName==='SELECT'){
+   const o=el.options[el.selectedIndex];if(!o)continue;
+   const room=el.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);if(room<=0)continue;
+   const font=s=>`${cs.fontWeight} ${s}px ${cs.fontFamily}`;
+   while(size>MIN&&textWidth(o.text,font(size))>room)size-=.5;
+   if(size<parseFloat(cs.fontSize))el.style.fontSize=size+'px';
+  }else{
+   if(el.scrollWidth<=el.clientWidth+1)continue;
+   while(size>MIN&&el.scrollWidth>el.clientWidth+1){size-=.5;el.style.fontSize=size+'px'}
+   if(el.scrollWidth>el.clientWidth+1)el.classList.add('fit-wrap');
+  }
+ }
+}

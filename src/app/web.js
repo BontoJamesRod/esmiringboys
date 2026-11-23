@@ -31,14 +31,16 @@ function Shell(){
   <nav class="nav">${items}</nav>
   <div class="side-foot">Sample data for demo only.<br>RA 10173 compliant design.</div></aside>
  <div class="scrim" onclick="A.nav(false)"></div>
- <div class="body">${Top()}<main class="main" id="main"><div class="view ${enter?'enter':''}">${(VIEWS[v]||VIEWS.dashboard)()}</div></main></div></div>
+ <div class="body">${Top()}<main class="main" id="main"><div class="brgy-row">${brgySel()}</div><div class="view ${enter?'enter':''}">${(VIEWS[v]||VIEWS.dashboard)()}</div></main></div></div>
  ${S.drawer?Drawer():''}${S.modal?Modal():''}${S.cmdk?Cmdk():''}`}
 
+/* Barangay picker: in the top bar on wide screens, its own full-width row on phones (never cut off). */
+function brgySel(){const u=S.user;return u.role==='admin'?`<select class="sel-inline" aria-label="Barangay" onchange="A.brgy(this.value)"><option value="all">All barangays</option>${DB.brgys.map(b=>`<option value="${b.id}" ${S.brgy===b.id?'selected':''}>Brgy. ${esc(b.name)}</option>`).join('')}</select>`:`<span class="chip">${icon('pin',14)}Brgy. ${esc(brgyOf(u.brgy).name)}</span>`}
 function Top(){
  const u=S.user,pend=DB.checkins.filter(x=>x.synced===false).length+DB.dists.filter(x=>x.synced===false).length+DB.households.filter(x=>x.synced===false).length;
- const bsel=u.role==='admin'?`<select class="sel-inline min-w-0 max-w-32 md:max-w-none" aria-label="Barangay" onchange="A.brgy(this.value)"><option value="all">All barangays</option>${DB.brgys.map(b=>`<option value="${b.id}" ${S.brgy===b.id?'selected':''}>Brgy. ${esc(b.name)}</option>`).join('')}</select>`:`<span class="chip">${icon('pin',14)}Brgy. ${esc(brgyOf(u.brgy).name)}</span>`;
+ const bsel=`<div class="brgy-top">${brgySel()}</div>`;
  const al=DB.settings.alert!=='0'?`<span class="chip alertlvl hide-sm" title="${esc(DB.settings.alertName)} Alert Level ${esc(DB.settings.alert)} (sample)">${icon('alert',15)}<span class="hidden 2xl:inline">${esc(DB.settings.alertName)} </span><span>Alert ${esc(DB.settings.alert)}</span></span>`:'';
- const sync=`<button class="chip hide-sm" style="cursor:${u.role==='admin'?'pointer':'default'}" onclick="${u.role==='admin'?"location.hash='devices'":''}" title="${pend?`${pend} ${t('pending')}`:t('allsynced')}" aria-label="${pend?`${pend} ${t('pending')}`:t('allsynced')}">${pend?icon('refresh',14):icon('check',14)}<span class="hidden xl:inline">${pend?`${pend} ${t('pending')}`:t('allsynced')}</span>${pend?`<span class="xl:hidden">${pend}</span>`:''}</button>`;
+ const sync=`<button class="chip hide-sm" style="cursor:${u.role==='admin'?'pointer':'default'}" onclick="${u.role==='admin'?"location.hash='devices'":''}" title="${pend?`${pend} ${t('pending')}`:t('allsynced')}" aria-label="${pend?`${pend} ${t('pending')}`:t('allsynced')}">${pend?icon('refresh',14):icon('check',14)}<span class="hidden xl:inline sync-label">${pend?`${pend} ${t('pending')}`:t('allsynced')}</span>${pend?`<span class="xl:hidden">${pend}</span>`:''}</button>`;
  const al2=alerts(),nBad=al2.filter(a=>a[0]==='bad').length;
  const bell=`<div class="rel"><button class="icon-btn relative" data-tour="bell" aria-label="Notifications (${al2.length})" aria-expanded="${S.menu==='bell'}" onclick="A.menu('bell')">${icon('bell',19)}${al2.length?`<span class="bell-dot" style="${nBad?'':'background:var(--warn);color:#1B1F24'}">${al2.length}</span>`:''}</button>
   ${S.menu==='bell'?`<div class="pop" role="menu"><div class="flex items-center justify-between px-2.5 pt-1.5 pb-2"><b class="text-sm">Needs attention</b><span class="text-xs text-muted">${plural(al2.length,'item')}</span></div>${al2.map(([l,txt,go])=>`<a class="pop-item" ${can(go)?`href="#${go}"`:''} onclick="A.menu(false)"><span class="${l==='bad'?'text-bad-ink':'text-warn-ink'}">${icon('alert',16)}</span><span class="flex-1">${txt}</span>${can(go)?`<span class="text-faint">${icon('right',15)}</span>`:''}</a>`).join('')||`<div class="pop-item text-muted">${icon('check',16)}No capacity, stock or sync warnings right now.</div>`}</div>`:''}</div>`;
@@ -46,10 +48,10 @@ function Top(){
  return `<header class="top"><button class="icon-btn menu-btn" aria-label="Open menu" onclick="A.nav(true)">${icon('menu',20)}</button>${bsel}${al}
  <button class="kbar-btn" data-tour="search" onclick="A.cmdk(true)" aria-label="Search households and pages">${icon('search',16)}<span>Search…</span><span class="kbd">Ctrl K</span></button>
  <div class="grow"></div>
- <button class="icon-btn lg:hidden" data-tour="search" aria-label="Search" onclick="A.cmdk(true)">${icon('search',19)}</button>
+ <button class="icon-btn lg:hidden search-ic" data-tour="search" aria-label="Search" onclick="A.cmdk(true)">${icon('search',19)}</button>
  ${sync}${bell}
  <button class="icon-btn" data-tour="help" aria-label="Help: replay the tour" title="Help: replay the tour" onclick="A.tour()">${icon('help',19)}</button>
- <button class="btn btn-accent btn-sm" data-tour="scanner" onclick="A.go('scanner')">${icon('scan',16)}<span class="hide-sm">${t('openScanner')}</span></button>
+ <button class="btn btn-accent btn-sm" data-tour="scanner" onclick="A.go('scanner')">${icon('scan',16)}<span class="hide-sm scan-label">${t('openScanner')}</span></button>
  <div class="rel"><button class="userbtn" data-tour="account" onclick="A.menu('user')" aria-label="Account menu" aria-expanded="${S.menu==='user'}"><span class="avatar">${initials(u.name)}</span><span class="who"><b>${esc(u.name)}</b><span>${ROLE[u.role].label}</span></span></button>
  ${S.menu==='user'?`<div class="menu" role="menu"><div style="padding:8px 10px 10px"><b>${esc(u.name)}</b><div class="sm muted">${esc(u.email)}</div><div class="sm muted">${ROLE[u.role].label}</div></div>
   <div class="theme-row" role="group" aria-label="Theme">${[['system','auto','Auto'],['light','sun','Light'],['dark','moon','Dark']].map(([k,ic,l])=>`<button class="${th===k?'on':''}" aria-pressed="${th===k}" onclick="A.theme('${k}')">${icon(ic,14)}${l}</button>`).join('')}</div>
