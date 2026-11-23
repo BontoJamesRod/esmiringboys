@@ -30,7 +30,7 @@ function renderKeepForm(){const vals=[...document.querySelectorAll('#main [id]')
 let hhQT=0;
 function autoNeeds(m){const a=ageOf(m.birth);m.needs=m.needs.filter(n=>n!=='SENIOR'&&n!=='INFANT');if(a!=null&&a>=60)m.needs.push('SENIOR');if(a!=null&&a<2)m.needs.push('INFANT')}
 function nextCode(b){let mx=0;const re=new RegExp(`^ALB-${b.code}-(\\d{6})$`);DB.households.forEach(h=>{const m=h.code.match(re);if(m)mx=Math.max(mx,+m[1])});return mx+1}
-function afterScan(msg){save();toast(`${msg}. ${S.online?'Uploaded.':'Saved on this phone.'}`,S.online?'ok':'warn');render()}
+function afterScan(msg){feedback('done');save();toast(`${msg}. ${S.online?'Uploaded.':'Saved on this phone.'}`,S.online?'ok':'warn');render()}
 
 const A={
  /* session */
@@ -47,6 +47,7 @@ const A={
  tourGo(d){const T=S.tour;if(!T)return;const i=T.i+d;if(i>=T.steps.length){A.tourEnd();return}T.i=Math.max(0,i);drawTour()},
  tourEnd(){if(S.tour){markTour(S.tour.name);S.tour=null;drawTour()}},
  menu(which){S.menu=which&&S.menu!==which?which:false;render()},
+ sound(k){soundOn=k==='on';try{soundOn?localStorage.removeItem('kid-sound'):localStorage.setItem('kid-sound','off')}catch(e){}if(soundOn)feedback('ok');render()},
  size(k){S.size=k;try{k==='m'?localStorage.removeItem('kid-size'):localStorage.setItem('kid-size',k)}catch(e){}applySize();render()},
  theme(v){S.theme=v;try{v==='system'?localStorage.removeItem('kid-theme'):localStorage.setItem('kid-theme',v)}catch(e){}applyTheme();render()},
  /* tabs: local tabs only toggle visibility (forms keep every field); others re-render */
@@ -205,8 +206,8 @@ const A={
   const h=hhByCode(s);if(h&&vis(h)){if(!liveHH(h)||h.status==='inactive')return A.scNF('inactive');return A.scOpen(h.id)}return A.scNF('unknown',{text:s})},
  scSample(k){const d=DB.demo;const tok=code=>{const h=hhByCode(code);const c=h&&cardOf(h);return c?'KID1:'+c.token:code};
   A.scText(k==='lost'?'KID1:'+d.lostToken:k==='unknown'?'KID1:'+randHex(20):tok(d[k]))},
- scNF(reason,extra){S.sc.screen='notfound';S.sc.nf={reason,...(extra||{})};audit('scanned','Card not recognized',ME);save();render()},
- scOpen(id){const h=hh(id);S.sc.screen='result';S.sc.hh=id;S.sc.recorded=false;audit('viewed',h.code,ME);save();render();const b=$('#ph-body');if(b)b.scrollTop=0},
+ scNF(reason,extra){feedback('bad');S.sc.screen='notfound';S.sc.nf={reason,...(extra||{})};audit('scanned','Card not recognized',ME);save();render()},
+ scOpen(id){const h=hh(id);{const r=roundOf(DB.me.round);feedback(r&&receivedRec(r.id,h.id)?'warn':'ok')}S.sc.screen='result';S.sc.hh=id;S.sc.recorded=false;audit('viewed',h.code,ME);save();render();const b=$('#ph-body');if(b)b.scrollTop=0},
  scQ(v,fn){S.sc.q=v;const el=$('#sc-res');if(el)el.innerHTML=scResHTML(fn)},
  scCheckin(){const h=hh(S.sc.hh),cid=DB.me.center,now=Date.now();const old=activeCheckin(h.id);if(old){old.outAt=now;queue('checkout',`Moved ${h.code} out of ${centerOf(old.center).name}`,{kind:'checkins',id:old.id})}
   const ci={id:nid('ci'),hh:h.id,center:cid,inAt:now,outAt:null,device:ME,synced:false};DB.checkins.push(ci);queue('checkin',`Checked in ${h.code} to ${centerOf(cid).name}`,{kind:'checkins',id:ci.id});audit('checked in',h.code,ME);S.sc.recorded=false;afterScan(`Checked in to ${centerOf(cid).name}`)},
@@ -214,7 +215,7 @@ const A={
  scRecord(){const h=hh(S.sc.hh),r=roundOf(DB.me.round);if(!r||receivedRec(r.id,h.id))return;const it=itemOf(r.item);if(it.stock<r.qty)return;const now=Date.now();
   const d={id:nid('d'),round:r.id,hh:h.id,device:ME,at:now,uuid:uuid(),synced:false,state:'ok'};DB.dists.push(d);it.stock-=r.qty;it.updatedAt=now;
   const mv=DB.moves.find(m=>m.type==='OUT'&&m.source===`Round ${r.code}`);if(mv){mv.qty+=r.qty;mv.at=now}else DB.moves.push({id:nid('mv'),item:it.id,type:'OUT',qty:r.qty,source:`Round ${r.code}`,at:now,user:'Scanner devices'});
-  audit('recorded relief',`${h.code} · ${r.code}`,ME);const conf=queue('relief',`${r.qty} × ${it.name} to ${h.code}`,{kind:'dists',id:d.id});S.sc.recorded=!conf;save();if(!conf)toast(`${it.name} recorded. ${S.online?'Uploaded.':'Saved on this phone.'}`,S.online?'ok':'warn');render()},
+  audit('recorded relief',`${h.code} · ${r.code}`,ME);const conf=queue('relief',`${r.qty} × ${it.name} to ${h.code}`,{kind:'dists',id:d.id});S.sc.recorded=!conf;feedback(conf?'warn':'done');save();if(!conf)toast(`${it.name} recorded. ${S.online?'Uploaded.':'Saved on this phone.'}`,S.online?'ok':'warn');render()},
  scLostStart(){S.sc.q='';S.sc.lost={};S.sc.screen='lost';render();refocus('sc-q')},
  scLostPick(id){S.sc.lost={hh:id};render()},
  scLost(){const h=hh(S.sc.lost.hh),old=cardOf(h),now=Date.now();if(old){old.status='Lost';old.deactivatedAt=now}const c={id:nid('k'),hh:h.id,token:randHex(20),status:'Active',issuedAt:now,printed:false,digital:true,deactivatedAt:null};DB.cards.push(c);h.card=c.id;
@@ -232,6 +233,8 @@ document.addEventListener('keydown',e=>{if(!S)return;
 document.addEventListener('click',e=>{if(S&&S.menu&&!e.target.closest('.rel')){S.menu=false;render()}});
 let fitT=0;window.addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeout(()=>fitText(),80)});
 document.addEventListener('change',e=>{if(e.target.matches&&e.target.matches('select'))fitText()});
+window.addEventListener('beforeunload',e=>{if(DB&&DB.queue&&DB.queue.length){e.preventDefault();e.returnValue=''}});
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{})}catch(e){}
 let sizeT='m';try{sizeT=localStorage.getItem('kid-size')||'m'}catch(e){}
 let themeT='system';try{themeT=localStorage.getItem('kid-theme')||'system'}catch(e){}
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(S&&S.theme==='system')applyTheme()});

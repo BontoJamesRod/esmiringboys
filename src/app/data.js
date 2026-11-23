@@ -124,3 +124,24 @@ function fitText(root=document){
   }
  }
 }
+
+/* Scan feedback: a different sound + buzz for each result, so a volunteer in a noisy line
+   knows the outcome without reading the screen. Turn off in the scanner's home screen. */
+let soundOn=true;try{soundOn=localStorage.getItem('kid-sound')!=='off'}catch(e){}
+let fbCtx=null;
+const FEEDBACK={
+ ok:{notes:[[880,.12]],buzz:[60]},                       // card found
+ done:{notes:[[660,.1],[990,.16]],buzz:[40,60,40]},       // relief recorded
+ warn:{notes:[[330,.16],[330,.16]],buzz:[200,100,200]},   // already received / needs a look
+ bad:{notes:[[220,.45]],buzz:[500]}                      // card not recognized
+};
+function feedback(kind){const f=FEEDBACK[kind];if(!f)return;
+ try{if(navigator.vibrate)navigator.vibrate(f.buzz)}catch(e){}
+ if(!soundOn)return;
+ try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;fbCtx=fbCtx||new AC();if(fbCtx.state==='suspended')fbCtx.resume();
+  let t0=fbCtx.currentTime+.02;
+  for(const [hz,dur] of f.notes){const o=fbCtx.createOscillator(),g=fbCtx.createGain();o.type=kind==='bad'||kind==='warn'?'square':'sine';o.frequency.value=hz;
+   g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(kind==='ok'||kind==='done'?.25:.12,t0+.015);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+   o.connect(g).connect(fbCtx.destination);o.start(t0);o.stop(t0+dur+.02);t0+=dur+.06}
+ }catch(e){}}
+function soundRow(){return `<div class="theme-row size-row" role="group" aria-label="Scan sounds">${[['on','On'],['off','Off']].map(([k,l])=>`<button class="${(soundOn?'on':'off')===k?'on':''}" aria-pressed="${(soundOn?'on':'off')===k}" onclick="A.sound('${k}')"><span class="a" style="font-size:14px">${l}</span></button>`).join('')}</div>`}

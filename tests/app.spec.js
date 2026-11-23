@@ -247,3 +247,30 @@ for (const role of ['Encoder', 'Officer']) {
     expect(errors).toEqual([]);
   });
 }
+
+test('scanner: sound switch, feedback per result, unsent-data guard @phone', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.addInitScript(() => {
+    window.__fb = [];
+    navigator.vibrate = p => { window.__fb.push(JSON.stringify(p)); return true; };
+  });
+  await login(page, 'Scanner Volunteer');
+  await page.getByRole('button', { name: /Download records and start/ }).click();
+  const off = page.getByRole('group', { name: 'Scan sounds' }).getByRole('button', { name: 'Off' });
+  await off.click();
+  await expect(off).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => localStorage.getItem('kid-sound'))).toBe('off');
+  // each result buzzes differently
+  await page.getByRole('button', { name: /Connection status/ }).click();
+  await page.getByRole('button', { name: /Scan Card/ }).click();
+  await page.getByRole('button', { name: /Maria Santos/ }).click();
+  await page.getByRole('button', { name: 'Record received' }).click();
+  await page.getByRole('button', { name: /Scan next card/ }).click();
+  await page.getByRole('button', { name: /Maria Santos/ }).click();
+  await expect(page.getByText('Already received')).toBeVisible();
+  expect(await page.evaluate(() => window.__fb)).toEqual(['[60]', '[40,60,40]', '[200,100,200]']);
+  // an unsent record makes the page ask before closing
+  const asked = await page.evaluate(() => { const e = new Event('beforeunload', { cancelable: true }); window.dispatchEvent(e); return e.defaultPrevented; });
+  expect(asked).toBe(true);
+  expect(errors).toEqual([]);
+});

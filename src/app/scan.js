@@ -35,6 +35,7 @@ function ScHome(){const me=DB.me,c=centerOf(me.center),r=roundOf(me.round),q=DB.
  <button class="btn btn-block" data-tour="sync" onclick="A.scSync()" ${S.online?'':'disabled'}>${icon('refresh',18)}${t('syncnow')}</button></div>
  <div class="grid2" style="gap:10px;grid-template-columns:1fr 1fr"><div class="ph-card"><div class="stat-label">Checked in here</div><div class="stat-num" style="font-size:26px">${ppl}<small>/ ${c.capacity}</small></div><div class="sm muted">${plural(here.length,'household')}</div></div><div class="ph-card"><div class="stat-label">Served this round</div><div class="stat-num" style="font-size:26px">${r?sv:'—'}${r?`<small>/ ${tg}</small>`:''}</div><div class="sm muted">${r?esc(itemOf(r.item).name):'No round selected'}</div></div></div>
  <div class="ph-card stack" style="gap:8px"><div class="split"><b>Text size</b><span class="sm muted">${(TEXT_SIZES.find(x=>x[0]===S.size)||TEXT_SIZES[1])[1]}</span></div>${sizeRow()}</div>
+ <div class="ph-card stack" style="gap:8px"><div class="split"><b>Scan sounds</b><span class="sm muted">After each scan</span></div>${soundRow()}</div>
  <button class="linkbtn" onclick="A.tour('phone')">${icon('help',17)}How to use this app</button>`}
 
 function ScScan(){const d=DB.demo,mk=(k,l,s)=>`<button class="sample" onclick="A.scSample('${k}')"><span style="color:var(--text);font-weight:600">${l}</span><span>${s}</span></button>`;
@@ -97,7 +98,7 @@ function startCam(){const v=$('#cam');if(!v)return;if(CAM.stream){v.srcObject=CA
  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){camMsg('Camera preview is not available here. Use Photo of card, Type ID, or a sample card.');return}
  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}).then(st=>{CAM.stream=st;const v2=$('#cam');if(!v2||S.sc.screen!=='scan'){stopCam();return}v2.srcObject=st;v2.play().catch(()=>{});camMsg('Point the camera at the QR code');loop()}).catch(()=>camMsg('Camera preview is blocked in this window. Use Photo of card, Type ID, or a sample card.'))}
 function loop(){cancelAnimationFrame(CAM.raf);const v=$('#cam');if(!v||!CAM.stream)return;
- if(v.readyState>=2&&jsQR&&v.videoWidth){const cv=CAM.cv||(CAM.cv=document.createElement('canvas'));const w=360,h=Math.round(w*v.videoHeight/v.videoWidth);cv.width=w;cv.height=h;const cx=cv.getContext('2d',{willReadFrequently:true});cx.drawImage(v,0,0,w,h);const r=jsQR(cx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'dontInvert'});if(r&&r.data){if(navigator.vibrate)try{navigator.vibrate(60)}catch(e){}stopCam();A.scText(r.data);return}}
+ if(v.readyState>=2&&jsQR&&v.videoWidth){const cv=CAM.cv||(CAM.cv=document.createElement('canvas'));const w=360,h=Math.round(w*v.videoHeight/v.videoWidth);cv.width=w;cv.height=h;const cx=cv.getContext('2d',{willReadFrequently:true});cx.drawImage(v,0,0,w,h);const r=jsQR(cx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:'dontInvert'});if(r&&r.data){stopCam();A.scText(r.data);return}}
  CAM.raf=requestAnimationFrame(loop)}
 function stopCam(){cancelAnimationFrame(CAM.raf);if(CAM.stream){CAM.stream.getTracks().forEach(t=>t.stop());CAM.stream=null}CAM.torch=false}
 

@@ -79,6 +79,8 @@ vite.config.js        joins src/app/*.js into one module (see the comment there)
 - Household, center and round details open in a side panel with tabs.
 - The **account menu** has the theme (Auto / Light / Dark), **text size** (Small / Default / Large / Larger) and language.
 - **Phone sizing** follows social-app conventions: 15px text, 44px touch targets, a compact bottom tab bar. Text size is also on the scanner home and setup screens; it scales the whole interface evenly (CSS `zoom` from `--ui-zoom`) and is kept in `localStorage` (`kid-size`).
+- **Scan feedback** for noisy evacuation centers: each scanner result has its own sound and vibration (card found: one beep; relief recorded: two rising notes; already received: two low buzzes; card not recognized: one long low tone). Sounds can be turned off on the scanner home screen (`localStorage` `kid-sound`); vibration always stays on. Made with the Web Audio API, no sound files.
+- **Offline data safety:** the app asks the browser for persistent storage so saved records are not cleared to free space, and it warns before the page is closed while records on the phone are still waiting to upload.
 - **No cut-off text:** instead of trailing dots, labels and dropdowns shrink to fit (`fitText()` in `data.js`, minimum 11px, wraps below that). On phones the barangay picker gets its own full-width row; a crowded desktop top bar drops extras in order (name, sync label, search box, scanner label, alert chip).
 
 ## Ideas for next steps
